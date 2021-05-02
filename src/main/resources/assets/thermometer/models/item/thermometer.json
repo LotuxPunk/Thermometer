@@ -1,0 +1,30 @@
+{
+  "parent": "item/generated",
+  "texture_size": [
+    16,
+    16
+  ],
+  "textures": {
+    "layer0": "thermometer:item/thermometer_cold"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "thermal": 0.0
+      },
+      "model": "thermometer:item/thermometer"
+    },
+    {
+      "predicate": {
+        "thermal": 1.0
+      },
+      "model": "thermometer:item/thermometer/thermometer_temperate"
+    },
+    {
+      "predicate": {
+        "thermal": 2.0
+      },
+      "model": "thermometer:item/thermometer/thermometer_hot"
+    }
+  ]
+}
