@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 public interface IThermal extends INBTSerializable<CompoundNBT> {
     void tick(PlayerEntity entity);
     ThermalLevels getThermalLevel();
-    int getTemperature();
+    float getTemperature();
 
     public static  class Storage implements Capability.IStorage<IThermal> {
 

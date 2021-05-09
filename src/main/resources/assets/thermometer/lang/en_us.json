@@ -1,3 +1,4 @@
 {
-  "item.thermometer.thermometer" : "Thermometer"
+  "item.thermometer.thermometer" : "Thermometer",
+  "thermometer.temp": "Temperature : %sC° / %sF°"
 }

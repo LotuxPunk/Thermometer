@@ -26,21 +26,21 @@ public class ThermalCapability implements IThermal {
     }
 
     @Override
-    public int getTemperature() {
-        return 0;
+    public float getTemperature() {
+        return this.temperature;
     }
 
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT tag = new CompoundNBT();
         tag.putFloat("thermal", (float)thermal.ordinal());
-        tag.putInt("temperature", getTemperature());
+        tag.putFloat("temperature", getTemperature());
         return tag;
     }
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
         thermal = ThermalLevels.values()[(int)nbt.getFloat("thermal")];
-        temperature = nbt.getInt("temperature");
+        temperature = nbt.getFloat("temperature");
     }
 }

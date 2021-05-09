@@ -1,15 +1,20 @@
 package com.vandendaelen.thermometer.items;
 
 import com.vandendaelen.thermometer.capabilities.Capabilities;
+import com.vandendaelen.thermometer.capabilities.IThermal;
+import com.vandendaelen.thermometer.helpers.MathHelper;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -37,13 +42,27 @@ public class ThermometerItem extends Item {
         }
     }
 
-//    @Override
-//    public void addInformation(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-//        super.addInformation(stack, worldIn, tooltip, flagIn);
-//        stack.getCapability(Capabilities.THERMAL).ifPresent(cap -> {
-//            tooltip.add(new StringTextComponent(cap.getThermalLevel().name()));
-//        });
-//    }
+    @Override
+    public void addInformation(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+        super.addInformation(stack, worldIn, tooltip, flagIn);
+        stack.getCapability(Capabilities.THERMAL).ifPresent(cap -> {
+            tooltip.add(getTemperatureInformation(cap));
+        });
+    }
+
+    @Override
+    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
+        playerIn.getHeldItem(handIn).getCapability(Capabilities.THERMAL).ifPresent(cap -> {
+            playerIn.sendStatusMessage(getTemperatureInformation(cap), true);
+        });
+        return super.onItemRightClick(worldIn, playerIn, handIn);
+    }
+
+    private TranslationTextComponent getTemperatureInformation(IThermal cap){
+        double fTemp = MathHelper.getFahrenheitTemperature(cap.getTemperature());
+        double cTemp = MathHelper.getCelsiusTemperature(fTemp);
+        return new TranslationTextComponent("thermometer.temp", (int)cTemp , (int)fTemp);
+    }
 
     public static void syncCapability(ItemStack stack) {
         if (stack.getShareTag() != null) {
