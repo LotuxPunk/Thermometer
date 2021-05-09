@@ -29,7 +29,7 @@ displayName="Thermometer" #mandatory
 # A file name (in the root of the mod JAR) containing a logo for display
 #logoFile="thermometer.png" #optional
 # A text field displayed in the mod UI
-#credits="Thanks for this example mod goes to Java" #optional
+credits="Thanks to @LocalViolet for the textures, u/theweatherman561 for the temperature maths" #optional
 # A text field displayed in the mod UI
 authors="LotuxPunk" #optional
 # The description text for the mod (multi line!) (#mandatory)
