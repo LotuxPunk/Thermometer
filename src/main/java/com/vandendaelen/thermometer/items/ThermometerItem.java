@@ -3,19 +3,20 @@ package com.vandendaelen.thermometer.items;
 import com.vandendaelen.thermometer.capabilities.Capabilities;
 import com.vandendaelen.thermometer.capabilities.IThermal;
 import com.vandendaelen.thermometer.helpers.MathHelper;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -25,16 +26,16 @@ public class ThermometerItem extends Item {
 
 
     public ThermometerItem() {
-        super(new Properties().maxStackSize(1).group(ItemGroup.TOOLS));
+        super(new Properties().stacksTo(1).tab(CreativeModeTab.TAB_TOOLS));
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+    public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
         super.inventoryTick(stack, worldIn, entityIn, itemSlot, isSelected);
 
-        if (!worldIn.isRemote()){
-            if (entityIn instanceof ServerPlayerEntity){
-                stack.getCapability(Capabilities.THERMAL).ifPresent(cap -> cap.tick((ServerPlayerEntity)entityIn));
+        if (!worldIn.isClientSide()){
+            if (entityIn instanceof ServerPlayer){
+                stack.getCapability(Capabilities.THERMAL).ifPresent(cap -> cap.tick((ServerPlayer)entityIn));
             }
             if (worldIn.getGameTime() % 20 == 0) {
                 syncCapability(stack);
@@ -42,26 +43,28 @@ public class ThermometerItem extends Item {
         }
     }
 
+
+
     @Override
-    public void addInformation(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
         stack.getCapability(Capabilities.THERMAL).ifPresent(cap -> {
             tooltip.add(getTemperatureInformation(cap));
         });
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        playerIn.getHeldItem(handIn).getCapability(Capabilities.THERMAL).ifPresent(cap -> {
-            playerIn.sendStatusMessage(getTemperatureInformation(cap), true);
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
+        playerIn.getItemInHand(handIn).getCapability(Capabilities.THERMAL).ifPresent(cap -> {
+            playerIn.displayClientMessage(getTemperatureInformation(cap), true);
         });
-        return super.onItemRightClick(worldIn, playerIn, handIn);
+        return super.use(worldIn, playerIn, handIn);
     }
 
-    private TranslationTextComponent getTemperatureInformation(IThermal cap){
+    private TranslatableComponent getTemperatureInformation(IThermal cap){
         double fTemp = MathHelper.getFahrenheitTemperature(cap.getTemperature());
         double cTemp = MathHelper.getCelsiusTemperature(fTemp);
-        return new TranslationTextComponent("thermometer.temp", (int)cTemp , (int)fTemp);
+        return new TranslatableComponent("thermometer.temp", (int)cTemp , (int)fTemp);
     }
 
     public static void syncCapability(ItemStack stack) {
@@ -78,15 +81,15 @@ public class ThermometerItem extends Item {
 
     @Nullable
     @Override
-    public CompoundNBT getShareTag(ItemStack stack) {
-        CompoundNBT tag = stack.getOrCreateTag();
+    public CompoundTag getShareTag(ItemStack stack) {
+        CompoundTag tag = stack.getOrCreateTag();
         stack.getCapability(Capabilities.THERMAL).ifPresent(handler -> tag.put("cap_sync", handler.serializeNBT()));
         return tag;
 
     }
 
     @Override
-    public void readShareTag(ItemStack stack, @Nullable CompoundNBT nbt) {
+    public void readShareTag(ItemStack stack, @Nullable CompoundTag nbt) {
         super.readShareTag(stack, nbt);
         if (nbt != null) {
             if (nbt.contains("cap_sync")) {

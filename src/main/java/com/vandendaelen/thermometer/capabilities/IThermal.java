@@ -1,38 +1,22 @@
 package com.vandendaelen.thermometer.capabilities;
 
 import com.vandendaelen.thermometer.misc.ThermalLevels;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-public interface IThermal extends INBTSerializable<CompoundNBT> {
-    void tick(PlayerEntity entity);
+public interface IThermal extends INBTSerializable<CompoundTag> {
+    void tick(Player entity);
     ThermalLevels getThermalLevel();
     float getTemperature();
 
-    public static  class Storage implements Capability.IStorage<IThermal> {
-
-        @Nullable
-        @Override
-        public INBT writeNBT(Capability<IThermal> capability, IThermal instance, Direction side) {
-            return instance.serializeNBT();
-        }
-
-        @Override
-        public void readNBT(Capability<IThermal> capability, IThermal instance, Direction side, INBT nbt) {
-            instance.deserializeNBT((CompoundNBT) nbt);
-        }
-    }
-
-    public static class Provider implements ICapabilitySerializable<CompoundNBT>{
+    public static class Provider implements ICapabilitySerializable<CompoundTag>{
         private IThermal thermal;
 
         public Provider(IThermal thermal) {
@@ -45,17 +29,17 @@ public interface IThermal extends INBTSerializable<CompoundNBT> {
 
         @Nonnull
         @Override
-        public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+        public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction side) {
             return cap == Capabilities.THERMAL ? (LazyOptional<T>) LazyOptional.of(() -> (T) thermal) : LazyOptional.empty();
         }
 
         @Override
-        public CompoundNBT serializeNBT() {
+        public CompoundTag serializeNBT() {
             return thermal.serializeNBT();
         }
 
         @Override
-        public void deserializeNBT(CompoundNBT nbt) {
+        public void deserializeNBT(CompoundTag nbt) {
             thermal.deserializeNBT(nbt);
         }
     }

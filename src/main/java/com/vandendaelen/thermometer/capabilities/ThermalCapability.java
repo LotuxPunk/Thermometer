@@ -1,9 +1,9 @@
 package com.vandendaelen.thermometer.capabilities;
 
 import com.vandendaelen.thermometer.misc.ThermalLevels;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 public class ThermalCapability implements IThermal {
     private ThermalLevels thermal = ThermalLevels.TEMPERATE;
@@ -13,9 +13,9 @@ public class ThermalCapability implements IThermal {
     }
 
     @Override
-    public void tick(PlayerEntity entity) {
-        if (entity instanceof ServerPlayerEntity){
-            temperature = ((ServerPlayerEntity) entity).getServerWorld().getBiome(entity.getPosition()).getTemperature(entity.getPosition());
+    public void tick(Player entity) {
+        if (entity instanceof ServerPlayer){
+            temperature = ((ServerPlayer) entity).getLevel().getBiome(entity.getOnPos()).getTemperature(entity.getOnPos());
             thermal = ThermalLevels.from(temperature);
         }
     }
@@ -31,15 +31,15 @@ public class ThermalCapability implements IThermal {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag tag = new CompoundTag();
         tag.putFloat("thermal", (float)thermal.ordinal());
         tag.putFloat("temperature", getTemperature());
         return tag;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
         thermal = ThermalLevels.values()[(int)nbt.getFloat("thermal")];
         temperature = nbt.getFloat("temperature");
     }
