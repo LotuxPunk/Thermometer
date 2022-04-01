@@ -1,9 +1,10 @@
 package com.vandendaelen.thermometer.capabilities;
 
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 
 public class Capabilities {
-    @CapabilityInject(IThermal.class)
-    public static final Capability<IThermal> THERMAL = null;
+    public static final Capability<IThermal> THERMAL = CapabilityManager.get(new CapabilityToken<>() {
+    });
 }

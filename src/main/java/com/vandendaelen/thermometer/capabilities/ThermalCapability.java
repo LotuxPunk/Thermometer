@@ -15,7 +15,7 @@ public class ThermalCapability implements IThermal {
     @Override
     public void tick(Player entity) {
         if (entity instanceof ServerPlayer){
-            temperature = ((ServerPlayer) entity).getLevel().getBiome(entity.getOnPos()).getTemperature(entity.getOnPos());
+            temperature = ((ServerPlayer) entity).getLevel().getBiome(entity.getOnPos()).value().getHeightAdjustedTemperature(entity.getOnPos());
             thermal = ThermalLevels.from(temperature);
         }
     }
